@@ -108,6 +108,119 @@ npm run stop-all-mcp
 | Fetch               | Enables making network requests        | No additional configuration needed    |
 | Sequential Thinking | Enables complex multi-step reasoning   | No additional configuration needed    |
 
+## MCP Server Details
+
+### Filesystem MCP
+
+The Filesystem MCP provides secure access to your local files and project code. It enables:
+
+- Reading and writing files in allowed directories
+- Directory listing and file search
+- Code analysis and modification
+- Project structure understanding
+
+Configuration:
+
+```bash
+npm run mcp-fs
+# or
+npx -y @modelcontextprotocol/server-filesystem /your/workspace/path
+```
+
+### Puppeteer MCP
+
+The Puppeteer MCP enables browser automation and UI analysis. Features include:
+
+- Automated UI testing
+- Visual regression testing
+- Accessibility analysis
+- Performance monitoring
+- Screenshot capture
+
+Configuration:
+
+```bash
+npm run mcp-puppeteer
+# or
+npx -y @modelcontextprotocol/server-puppeteer
+```
+
+### GitHub MCP
+
+The GitHub MCP provides integration with GitHub repositories. Capabilities include:
+
+- Repository management
+- Code review automation
+- Branch protection
+- Issue and PR management
+- Commit analysis
+
+Configuration:
+
+```bash
+# First set up your token
+npm run setup-github
+
+# Then start the server
+npm run mcp-github
+# or
+npx -y @modelcontextprotocol/server-github
+```
+
+### Fetch MCP
+
+The Fetch MCP enables network requests and API interactions. Features include:
+
+- HTTP/HTTPS requests
+- API testing
+- Response analysis
+- Performance monitoring
+- Error handling
+
+Configuration:
+
+```bash
+npm run mcp-fetch
+# or
+npx -y mcprouter
+```
+
+### Sequential MCP
+
+The Sequential MCP enables complex multi-step reasoning tasks. It provides:
+
+- Task orchestration
+- Dependency management
+- Step-by-step analysis
+- Error recovery
+- State management
+
+Configuration:
+
+```bash
+npm run mcp-sequential
+# or
+npx -y mcprouter
+```
+
+### WebResearch MCP
+
+The WebResearch MCP provides web search and research capabilities. Features include:
+
+- Web search integration
+- Content analysis
+- Trend monitoring
+- Competitive research
+- Documentation search
+
+Configuration:
+
+```bash
+npm run mcp-webresearch
+# or
+npx -y @modelcontextprotocol/server-webresearch
+```
+
 ## In-Depth Configuration
 
 ### Workspace Directory Configuration

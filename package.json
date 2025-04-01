@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node test.js",
+    "test:comprehensive": "node test/comprehensive-mcp-test.js",
     "mcp-init": "node scripts/cursor-mcp-init.js",
     "mcp-init-force": "node scripts/cursor-mcp-init.js --force",
     "test-mcp": "node scripts/test-all-mcp-tools.js",

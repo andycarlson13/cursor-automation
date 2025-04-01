@@ -54,7 +54,7 @@ The AI agent will:
 Clone this repository and install dependencies:
 
 ```bash
-git clone https://github.com/blackhawk-intelligence/cursor-automation.git
+git clone https://github.com/Blackhawk-Intelligence-LLC/cursor-automation.git
 cd cursor-automation
 npm install
 ```

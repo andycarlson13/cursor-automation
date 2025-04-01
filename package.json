@@ -1,7 +1,7 @@
 {
-  "name": "cursor-utils",
+  "name": "cursor-automation",
   "version": "1.0.0",
-  "description": "Utilities for Cursor editor with MCP integration",
+  "description": "Full AI automation toolkit for Cursor editor with MCP integration",
   "main": "index.js",
   "type": "commonjs",
   "scripts": {

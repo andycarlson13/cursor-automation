@@ -1,4 +1,4 @@
-# Cursor MCP Utilities - Full AI Automation
+# Cursor Automation - Full AI Integration Toolkit
 
 A comprehensive toolkit for maximizing AI automation capabilities in Cursor editor using Model Context Protocol (MCP) tools.
 
@@ -54,8 +54,8 @@ The AI agent will:
 Clone this repository and install dependencies:
 
 ```bash
-git clone https://github.com/yourusername/cursor-utils.git
-cd cursor-utils
+git clone https://github.com/blackhawk-intelligence/cursor-automation.git
+cd cursor-automation
 npm install
 ```
 

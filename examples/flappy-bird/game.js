@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const finalScoreDisplay = document.getElementById('final-score');
     const startButton = document.getElementById('start-button');
     const restartButton = document.getElementById('restart-button');
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
 
     // Game variables
     let gameStarted = false;
@@ -21,16 +22,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let pipes = [];
     let gameLoop;
     let pipeGenerationInterval;
+    let isFullscreen = false;
 
     // Game constants
     const FLAP_VELOCITY = -8;
     const PIPE_SPEED = 2;
     const PIPE_SPAWN_INTERVAL = 2000; // ms
     const GAP_SIZE = 150;
-    const CONTAINER_HEIGHT = gameContainer.clientHeight;
-    const CONTAINER_WIDTH = gameContainer.clientWidth;
-    const BIRD_HEIGHT = bird.clientHeight;
-    const BIRD_WIDTH = bird.clientWidth;
+    let CONTAINER_HEIGHT = gameContainer.clientHeight;
+    let CONTAINER_WIDTH = gameContainer.clientWidth;
+    const BIRD_HEIGHT = 30;
+    const BIRD_WIDTH = 40;
 
     // Initialize the game
     function initGame() {
@@ -41,6 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
         pipes = [];
         gameStarted = false;
         gameOver = false;
+
+        // Update container dimensions (in case of fullscreen change)
+        updateContainerDimensions();
 
         // Clear existing pipes
         const existingPipes = document.querySelectorAll('.pipe');
@@ -54,6 +59,12 @@ document.addEventListener('DOMContentLoaded', () => {
         gameOverScreen.style.display = 'none';
     }
 
+    // Update container dimensions
+    function updateContainerDimensions() {
+        CONTAINER_HEIGHT = gameContainer.clientHeight;
+        CONTAINER_WIDTH = gameContainer.clientWidth;
+    }
+
     // Start the game
     function startGame() {
         gameStarted = true;
@@ -61,13 +72,21 @@ document.addEventListener('DOMContentLoaded', () => {
         startScreen.style.display = 'none';
         
         // Start the game loop
-        gameLoop = setInterval(updateGame, 20);
+        gameLoop = requestAnimationFrame(updateGameLoop);
         
         // Generate pipes at intervals
         pipeGenerationInterval = setInterval(generatePipe, PIPE_SPAWN_INTERVAL);
         
         // Generate first pipe immediately
         generatePipe();
+    }
+
+    // Game loop using requestAnimationFrame
+    function updateGameLoop(timestamp) {
+        if (!gameOver) {
+            updateGame();
+            gameLoop = requestAnimationFrame(updateGameLoop);
+        }
     }
 
     // Update game state
@@ -83,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             birdY = 0;
             birdVelocity = 0;
         }
-        if (birdY > CONTAINER_HEIGHT - BIRD_HEIGHT) {
+        if (birdY > CONTAINER_HEIGHT - BIRD_HEIGHT - 20) { // 20px for ground
             gameEnd();
             return;
         }
@@ -130,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameOver) return;
 
         // Random gap position
-        const gapTop = Math.floor(Math.random() * (CONTAINER_HEIGHT - GAP_SIZE - 100)) + 50;
+        const gapTop = Math.floor(Math.random() * (CONTAINER_HEIGHT - GAP_SIZE - 140)) + 50;
         
         // Create top pipe
         const topPipe = document.createElement('div');
@@ -142,9 +161,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Create bottom pipe
         const bottomPipe = document.createElement('div');
         bottomPipe.className = 'pipe pipe-bottom';
-        bottomPipe.style.height = `${CONTAINER_HEIGHT - gapTop - GAP_SIZE}px`;
+        bottomPipe.style.height = `${CONTAINER_HEIGHT - gapTop - GAP_SIZE - 20}px`; // 20px for ground
         bottomPipe.style.left = `${CONTAINER_WIDTH}px`;
-        bottomPipe.style.bottom = '0';
+        bottomPipe.style.bottom = '20px'; // Account for ground
         
         // Add pipes to the container
         gameContainer.appendChild(topPipe);
@@ -169,12 +188,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const pipeLeft = pipe.x;
         const pipeRight = pipe.x + 60;
         const topPipeBottom = parseInt(pipe.topElement.style.height);
-        const bottomPipeTop = CONTAINER_HEIGHT - parseInt(pipe.bottomElement.style.height);
+        const bottomPipeTop = CONTAINER_HEIGHT - parseInt(pipe.bottomElement.style.height) - 20; // 20px for ground
         
         // Check horizontal collision
         if (birdRight > pipeLeft && birdPosition < pipeRight) {
-            // Check vertical collision
-            if (birdTop < topPipeBottom || birdBottom > bottomPipeTop) {
+            // Check vertical collision (with smaller hitbox for better gameplay)
+            if (birdTop + 5 < topPipeBottom || birdBottom - 5 > bottomPipeTop) {
                 return true;
             }
         }
@@ -205,12 +224,68 @@ document.addEventListener('DOMContentLoaded', () => {
     // End the game
     function gameEnd() {
         gameOver = true;
-        clearInterval(gameLoop);
+        cancelAnimationFrame(gameLoop);
         clearInterval(pipeGenerationInterval);
         
         // Show game over screen
         gameOverScreen.style.display = 'flex';
         finalScoreDisplay.textContent = score;
+    }
+
+    // Toggle fullscreen
+    function toggleFullscreen() {
+        if (!isFullscreen) {
+            // Go fullscreen
+            if (gameContainer.requestFullscreen) {
+                gameContainer.requestFullscreen();
+            } else if (gameContainer.mozRequestFullScreen) { // Firefox
+                gameContainer.mozRequestFullScreen();
+            } else if (gameContainer.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                gameContainer.webkitRequestFullscreen();
+            } else if (gameContainer.msRequestFullscreen) { // IE/Edge
+                gameContainer.msRequestFullscreen();
+            }
+            document.body.classList.add('fullscreen');
+            fullscreenBtn.textContent = 'Exit Fullscreen';
+        } else {
+            // Exit fullscreen
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) { // Firefox
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { // IE/Edge
+                document.msExitFullscreen();
+            }
+            document.body.classList.remove('fullscreen');
+            fullscreenBtn.textContent = 'Fullscreen';
+        }
+        
+        isFullscreen = !isFullscreen;
+        
+        // Update container dimensions after fullscreen toggle
+        setTimeout(updateContainerDimensions, 100);
+    }
+
+    // Handle fullscreen change
+    function handleFullscreenChange() {
+        if (!document.fullscreenElement && 
+            !document.mozFullScreenElement &&
+            !document.webkitFullscreenElement && 
+            !document.msFullscreenElement) {
+            
+            isFullscreen = false;
+            document.body.classList.remove('fullscreen');
+            fullscreenBtn.textContent = 'Fullscreen';
+        } else {
+            isFullscreen = true;
+            document.body.classList.add('fullscreen');
+            fullscreenBtn.textContent = 'Exit Fullscreen';
+        }
+        
+        // Update container dimensions after fullscreen change
+        setTimeout(updateContainerDimensions, 100);
     }
 
     // Event listeners
@@ -230,6 +305,20 @@ document.addEventListener('DOMContentLoaded', () => {
         e.stopPropagation(); // Prevent triggering flap
         initGame();
     });
+    
+    fullscreenBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent triggering flap
+        toggleFullscreen();
+    });
+    
+    // Listen for fullscreen change events
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+    
+    // Listen for window resize to update dimensions
+    window.addEventListener('resize', updateContainerDimensions);
 
     // Initialize the game when loaded
     initGame();

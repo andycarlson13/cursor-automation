@@ -4,6 +4,7 @@
   "description": "Cursor automation with MCP agents",
   "main": "index.js",
   "scripts": {
+    "test": "node test/simple-test.js",
     "mcp-init": "node scripts/cursor-mcp-init.js",
     "mcp-init-force": "node scripts/cursor-mcp-init.js --force",
     "test-mcp": "node scripts/test-all-mcp-tools.js",
@@ -26,10 +27,11 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.8.0",
     "@modelcontextprotocol/server-filesystem": "^0.6.2",
-    "@modelcontextprotocol/server-github": "^0.6.0",
+    "@modelcontextprotocol/server-github": "^0.6.2",
     "@modelcontextprotocol/server-puppeteer": "^0.6.2",
     "@mzxrai/mcp-webresearch": "^0.1.0",
-    "mcprouter": "^0.1.0",
+    "dotenv": "^16.4.7",
+    "mcprouter": "^0.1.3",
     "puppeteer": "^21.0.0"
   }
 }

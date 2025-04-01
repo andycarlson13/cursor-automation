@@ -1,0 +1,52 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+mcp-logs/
+*.log
+npm-debug.log*
+
+# Test results and examples
+mcp-test-results/
+!mcp-test-results/sample/
+ui-analysis-results/
+markdown-output/
+test-*.html
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+mcp-pids.json
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Output of 'npm pack'
+*.tgz
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# vscode
+.vscode/ 

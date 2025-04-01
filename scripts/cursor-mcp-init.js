@@ -12,6 +12,15 @@ const forceInit = args.includes('--force') || args.includes('-f');
 // Get the current working directory
 const cwd = process.cwd();
 
+// Add GitHub token compatibility
+// Handle both GITHUB_TOKEN and GITHUB_PERSONAL_ACCESS_TOKEN
+if (process.env.GITHUB_TOKEN && !process.env.GITHUB_PERSONAL_ACCESS_TOKEN) {
+  process.env.GITHUB_PERSONAL_ACCESS_TOKEN = process.env.GITHUB_TOKEN;
+}
+if (process.env.GITHUB_PERSONAL_ACCESS_TOKEN && !process.env.GITHUB_TOKEN) {
+  process.env.GITHUB_TOKEN = process.env.GITHUB_PERSONAL_ACCESS_TOKEN;
+}
+
 // Function to find the git root of the current directory
 function findGitRoot(dir) {
   try {

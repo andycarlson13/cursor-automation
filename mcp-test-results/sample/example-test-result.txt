@@ -1,0 +1,15 @@
+===== MCP Test Result Example =====
+
+Tool: example-mcp-tool
+Status: SUCCESS
+Runtime: 123ms
+
+Details:
+- Connected to MCP server
+- Performed test operation
+- Received expected response
+
+This is an example of how test results are formatted.
+No personal information is included here.
+
+=== End of Test === 

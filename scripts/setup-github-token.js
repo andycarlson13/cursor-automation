@@ -34,332 +34,119 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-// Function to check for existing GitHub token
-function checkExistingToken() {
-  // Check environment variable
-  if (process.env.GITHUB_TOKEN) {
-    log('Found existing GitHub token in environment variables', colors.green);
-    return process.env.GITHUB_TOKEN;
-  }
-  
-  // Check in MCP config
-  const cursorDir = path.join(os.homedir(), '.cursor');
-  const mcpConfigPath = path.join(cursorDir, 'mcp.json');
-  
-  if (fs.existsSync(mcpConfigPath)) {
-    try {
-      const mcpConfig = JSON.parse(fs.readFileSync(mcpConfigPath, 'utf8'));
-      if (mcpConfig.mcpServers && 
-          mcpConfig.mcpServers.github && 
-          mcpConfig.mcpServers.github.env && 
-          mcpConfig.mcpServers.github.env.GITHUB_TOKEN) {
-        log('Found existing GitHub token in MCP configuration', colors.green);
-        return mcpConfig.mcpServers.github.env.GITHUB_TOKEN;
-      }
-    } catch (error) {
-      // Ignore errors reading config
-    }
-  }
-  
-  // Check in shell profile files
-  const profilePaths = [
-    path.join(os.homedir(), '.zshrc'),
-    path.join(os.homedir(), '.bashrc'),
-    path.join(os.homedir(), '.bash_profile')
-  ];
-  
-  for (const profilePath of profilePaths) {
-    if (fs.existsSync(profilePath)) {
-      const content = fs.readFileSync(profilePath, 'utf8');
-      const match = content.match(/export GITHUB_TOKEN=['"]([^'"]+)['"]/);
-      if (match && match[1]) {
-        log(`Found existing GitHub token in ${profilePath}`, colors.green);
-        return match[1];
-      }
-    }
-  }
-  
-  return null;
-}
+// Paths
+const homedir = require('os').homedir();
+const cursorDir = path.join(homedir, '.cursor');
+const mcpConfigFile = path.join(cursorDir, 'mcp.json');
 
-// Function to prompt for GitHub token
-function promptForGitHubToken() {
+// Function to prompt the user for input
+function prompt(message) {
   return new Promise((resolve) => {
-    // First check for existing token
-    const existingToken = checkExistingToken();
-    
-    if (existingToken) {
-      rl.question(colors.cyan + '\nExisting GitHub token found. Use this token? (y/n): ' + colors.reset, (answer) => {
-        if (answer.trim().toLowerCase() === 'y' || answer.trim().toLowerCase() === 'yes') {
-          resolve(existingToken);
-        } else {
-          promptForNewToken(resolve);
-        }
-      });
-    } else {
-      promptForNewToken(resolve);
-    }
-  });
-}
-
-// Helper function to prompt for a new token
-function promptForNewToken(resolve) {
-  log(colors.bold + colors.blue + '=== GitHub Token Setup ===' + colors.reset);
-  log('\nTo use GitHub MCP integration, you need a GitHub personal access token.', colors.yellow);
-  log('If you don\'t have one, you can create it at: https://github.com/settings/tokens', colors.yellow);
-  log('\nThe token needs the following permissions:', colors.yellow);
-  log('  - repo (Full control of private repositories)', colors.yellow);
-  log('  - workflow (Update GitHub Action workflows)', colors.yellow);
-  log('  - read:org (Read org and team membership, read org projects)', colors.yellow);
-  
-  rl.question(colors.cyan + '\nEnter your GitHub token (input will be hidden): ' + colors.reset, (token) => {
-    resolve(token.trim());
-  });
-}
-
-// Function to detect GitHub repositories in workspace
-function detectGitHubRepos() {
-  const repos = [];
-  
-  try {
-    // Detect in current directory
-    const cwd = process.cwd();
-    const gitConfigPath = path.join(cwd, '.git', 'config');
-    
-    if (fs.existsSync(gitConfigPath)) {
-      const gitConfig = fs.readFileSync(gitConfigPath, 'utf8');
-      const remoteMatch = gitConfig.match(/\[remote "origin"\][\s\S]*?url = ([^\s]+)/m);
-      
-      if (remoteMatch && remoteMatch[1]) {
-        const url = remoteMatch[1];
-        // Extract owner and repo from GitHub URL
-        const ghMatch = url.match(/github\.com[/:]([^/]+)\/([^.]+)(?:\.git)?/i);
-        
-        if (ghMatch && ghMatch[1] && ghMatch[2]) {
-          repos.push({
-            owner: ghMatch[1],
-            repo: ghMatch[2],
-            url: url
-          });
-        }
-      }
-    }
-    
-    // Detect cursor client repository
-    const cursorDir = path.join(os.homedir(), '.cursor');
-    const cursorConfigPath = path.join(cursorDir, 'config.json');
-    
-    if (fs.existsSync(cursorConfigPath)) {
-      try {
-        const cursorConfig = JSON.parse(fs.readFileSync(cursorConfigPath, 'utf8'));
-        
-        // Look for client repo info
-        if (cursorConfig.clientRepo) {
-          repos.push({
-            owner: cursorConfig.clientRepo.owner || 'getcursor',
-            repo: cursorConfig.clientRepo.repo || 'cursor',
-            url: `https://github.com/${cursorConfig.clientRepo.owner || 'getcursor'}/${cursorConfig.clientRepo.repo || 'cursor'}`,
-            isCursorClient: true
-          });
-        } else {
-          // Default Cursor client repo
-          repos.push({
-            owner: 'getcursor',
-            repo: 'cursor',
-            url: 'https://github.com/getcursor/cursor',
-            isCursorClient: true
-          });
-        }
-      } catch (error) {
-        // Ignore errors reading config
-      }
-    }
-    
-  } catch (error) {
-    log(`Warning: Could not detect GitHub repositories: ${error.message}`, colors.yellow);
-  }
-  
-  return repos;
-}
-
-// Function to verify GitHub token with repositories
-async function verifyGitHubToken(token, repos) {
-  if (!token || !repos.length) return false;
-  
-  try {
-    // Simple verification by checking if we can access repo info
-    const repo = repos[0];
-    const url = `https://api.github.com/repos/${repo.owner}/${repo.repo}`;
-    
-    const options = {
-      method: 'GET',
-      headers: {
-        'Authorization': `token ${token}`,
-        'User-Agent': 'cursor-utils'
-      }
-    };
-    
-    // We'll use Node's built-in https to avoid dependencies
-    const https = require('https');
-    
-    return new Promise((resolve) => {
-      const req = https.request(url, options, (res) => {
-        const statusCode = res.statusCode;
-        resolve(statusCode >= 200 && statusCode < 300);
-      });
-      
-      req.on('error', () => {
-        resolve(false);
-      });
-      
-      req.end();
-    });
-  } catch (error) {
-    return false;
-  }
-}
-
-// Function to add GitHub token to various config files
-async function setupGitHubToken(token) {
-  try {
-    // Detect GitHub repositories
-    const repos = detectGitHubRepos();
-    if (repos.length > 0) {
-      log(`Detected ${repos.length} GitHub repositories:`, colors.blue);
-      repos.forEach((repo, index) => {
-        log(`${index + 1}. ${repo.owner}/${repo.repo} ${repo.isCursorClient ? '(Cursor Client)' : ''}`, 
-           repo.isCursorClient ? colors.cyan : colors.reset);
-      });
-    }
-    
-    // Verify token with repositories
-    const isValid = await verifyGitHubToken(token, repos);
-    if (isValid) {
-      log('✅ GitHub token verification successful!', colors.green);
-    } else {
-      log('Warning: Could not verify GitHub token with detected repositories.', colors.yellow);
-      const proceed = await promptYesNo('Continue with this token anyway?');
-      if (!proceed) {
-        log('Setup canceled.', colors.yellow);
-        rl.close();
-        return;
-      }
-    }
-    
-    // 1. Add to MCP config
-    const cursorDir = path.join(os.homedir(), '.cursor');
-    if (!fs.existsSync(cursorDir)) {
-      fs.mkdirSync(cursorDir, { recursive: true });
-    }
-    
-    const mcpConfigPath = path.join(cursorDir, 'mcp.json');
-    let mcpConfig = { mcpServers: {} };
-    
-    if (fs.existsSync(mcpConfigPath)) {
-      try {
-        mcpConfig = JSON.parse(fs.readFileSync(mcpConfigPath, 'utf8'));
-      } catch (error) {
-        log(`Warning: Could not parse existing MCP config: ${error.message}`, colors.yellow);
-      }
-    }
-    
-    // Ensure mcpServers exists
-    if (!mcpConfig.mcpServers) {
-      mcpConfig.mcpServers = {};
-    }
-    
-    // Update GitHub configuration
-    if (mcpConfig.mcpServers.github) {
-      if (!mcpConfig.mcpServers.github.env) {
-        mcpConfig.mcpServers.github.env = {};
-      }
-      mcpConfig.mcpServers.github.env.GITHUB_TOKEN = token;
-    } else {
-      mcpConfig.mcpServers.github = {
-        command: "npx",
-        args: ["-y", "@modelcontextprotocol/server-github"],
-        env: {
-          GITHUB_TOKEN: token
-        },
-        type: "stdio"
-      };
-    }
-    
-    // Write updated config
-    fs.writeFileSync(mcpConfigPath, JSON.stringify(mcpConfig, null, 2));
-    log(`✅ GitHub token added to MCP config: ${mcpConfigPath}`, colors.green);
-    
-    // 2. Add to shell profile (if the user wants)
-    const addToProfile = await promptYesNo('Would you like to add the GitHub token to your shell profile? (recommended)');
-    
-    if (addToProfile) {
-      const shell = process.env.SHELL || '/bin/bash';
-      let profilePath;
-      
-      if (shell.includes('zsh')) {
-        profilePath = path.join(os.homedir(), '.zshrc');
-      } else if (shell.includes('bash')) {
-        profilePath = path.join(os.homedir(), '.bashrc');
-        // Also check for .bash_profile on macOS
-        const bashProfile = path.join(os.homedir(), '.bash_profile');
-        if (fs.existsSync(bashProfile)) {
-          profilePath = bashProfile;
-        }
-      } else {
-        log('Unsupported shell, please manually add the token to your shell profile.', colors.yellow);
-        return;
-      }
-      
-      // Add export to profile if it doesn't already exist
-      let profileContent = '';
-      if (fs.existsSync(profilePath)) {
-        profileContent = fs.readFileSync(profilePath, 'utf8');
-      }
-      
-      if (!profileContent.includes('export GITHUB_TOKEN=')) {
-        // Add the export, being careful about the token
-        fs.appendFileSync(profilePath, `\n# Added by cursor-utils for GitHub MCP integration\nexport GITHUB_TOKEN='${token}'\n`);
-        log(`✅ GitHub token added to ${profilePath}`, colors.green);
-        log(`\nTo apply this change, run:`, colors.yellow);
-        log(`source ${profilePath}`, colors.bold);
-      } else {
-        log(`GitHub token export already exists in ${profilePath}`, colors.yellow);
-      }
-    }
-    
-    log('\n' + colors.bold + colors.green + '=== GitHub Token Setup Complete ===' + colors.reset);
-    log('\nYou can now use GitHub MCP integration with full automation capabilities.', colors.green);
-    
-  } catch (error) {
-    log(`Error setting up GitHub token: ${error.message}`, colors.red);
-  } finally {
-    rl.close();
-  }
-}
-
-// Helper function to prompt yes/no questions
-function promptYesNo(question) {
-  return new Promise((resolve) => {
-    rl.question(colors.cyan + question + ' (y/n): ' + colors.reset, (answer) => {
-      resolve(answer.trim().toLowerCase() === 'y' || answer.trim().toLowerCase() === 'yes');
+    rl.question(message, (answer) => {
+      resolve(answer);
     });
   });
 }
 
 // Main function
 async function main() {
-  const token = await promptForGitHubToken();
-  if (token) {
-    await setupGitHubToken(token);
-  } else {
-    log('No token provided. Setup canceled.', colors.yellow);
-    rl.close();
+  console.log("\n=== GitHub Personal Access Token Setup ===\n");
+  console.log("This script will help you set up a GitHub Personal Access Token for the MCP GitHub server.\n");
+  console.log("Instructions to create a GitHub PAT:");
+  console.log("1. Go to https://github.com/settings/tokens");
+  console.log("2. Click 'Generate new token' (classic)");
+  console.log("3. Give it a name like 'Cursor Automation'");
+  console.log("4. Select the 'repo' scope (this grants access to repositories)");
+  console.log("5. Click 'Generate token'");
+  console.log("6. Copy the generated token\n");
+
+  const token = await prompt("Enter your GitHub Personal Access Token: ");
+  
+  if (!token) {
+    console.log("No token provided. Exiting without making changes.");
+    process.exit(0);
   }
+
+  // Update .env file if it exists, or create it
+  const envPath = path.join(process.cwd(), '.env');
+  let envContent = '';
+  
+  try {
+    if (fs.existsSync(envPath)) {
+      envContent = fs.readFileSync(envPath, 'utf8');
+      // Replace existing GITHUB_TOKEN if present
+      if (envContent.includes('GITHUB_TOKEN=')) {
+        envContent = envContent.replace(/GITHUB_TOKEN=.*(\n|$)/g, `GITHUB_TOKEN="${token}"\n`);
+      } else if (envContent.includes('GITHUB_PERSONAL_ACCESS_TOKEN=')) {
+        // Handle the old variable name if it exists
+        envContent = envContent.replace(/GITHUB_PERSONAL_ACCESS_TOKEN=.*(\n|$)/g, `GITHUB_TOKEN="${token}"\n`);
+      } else {
+        // Add new line if needed
+        if (!envContent.endsWith('\n')) {
+          envContent += '\n';
+        }
+        envContent += `GITHUB_TOKEN="${token}"\n`;
+      }
+    } else {
+      envContent = `GITHUB_TOKEN="${token}"\n`;
+    }
+    
+    fs.writeFileSync(envPath, envContent);
+    console.log("\n✅ GitHub token saved to .env file");
+  } catch (error) {
+    console.error("Error updating .env file:", error.message);
+  }
+
+  // Update ~/.cursor/mcp.json if it exists
+  const mcpConfigPath = path.join(os.homedir(), '.cursor', 'mcp.json');
+  
+  try {
+    if (fs.existsSync(mcpConfigPath)) {
+      const mcpConfig = JSON.parse(fs.readFileSync(mcpConfigPath, 'utf8'));
+      
+      // Check if github server is in the configuration
+      const hasGithubServer = mcpConfig.servers && 
+                             mcpConfig.servers.some(server => 
+                               server.name === 'github' || 
+                               (server.command && server.command.includes('server-github')));
+      
+      if (hasGithubServer) {
+        // Update environment variables for github server
+        mcpConfig.servers = mcpConfig.servers.map(server => {
+          if (server.name === 'github' || (server.command && server.command.includes('server-github'))) {
+            if (!server.env) {
+              server.env = {};
+            }
+            server.env.GITHUB_TOKEN = token;
+            // Also set the old variable name for backward compatibility
+            server.env.GITHUB_PERSONAL_ACCESS_TOKEN = token;
+          }
+          return server;
+        });
+        
+        fs.writeFileSync(mcpConfigPath, JSON.stringify(mcpConfig, null, 2));
+        console.log("✅ GitHub token updated in MCP configuration");
+      } else {
+        console.log("⚠️ GitHub server not found in MCP configuration. Token will be used when the server is first initialized.");
+      }
+    } else {
+      console.log("⚠️ MCP configuration not found. Token will be used when MCP is initialized.");
+    }
+  } catch (error) {
+    console.error("Error updating MCP configuration:", error.message);
+  }
+
+  console.log("\n✨ GitHub token setup complete!");
+  console.log("\nYour token is now configured for use with the MCP GitHub server.");
+  console.log("If you need to update your token in the future, run this script again.");
+  console.log("\nNOTE: For the changes to take effect, you may need to:");
+  console.log("1. Restart any running MCP servers: npm run mcp-init-force");
+  console.log("2. Restart Cursor\n");
+  
+  rl.close();
 }
 
-// Run the main function
 main().catch(error => {
-  console.error('Error:', error);
-  rl.close();
+  console.error("Setup failed:", error);
   process.exit(1);
 });

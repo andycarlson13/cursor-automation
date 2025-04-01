@@ -1,51 +1,35 @@
 {
   "name": "cursor-automation",
   "version": "1.0.0",
-  "description": "Full AI automation toolkit for Cursor editor with MCP integration",
+  "description": "Cursor automation with MCP agents",
   "main": "index.js",
-  "type": "commonjs",
   "scripts": {
-    "install": "node ./scripts/install.js",
-    "test": "node ./scripts/test-installation.js",
+    "mcp-init": "node scripts/cursor-mcp-init.js",
+    "mcp-init-force": "node scripts/cursor-mcp-init.js --force",
+    "test-mcp": "node scripts/test-all-mcp-tools.js",
+    "demo-mcp": "node scripts/demo-mcp-capabilities.js",
+    "start-fs-mcp": "node scripts/start-filesystem-mcp.js",
+    "setup-github": "node scripts/setup-github-token.js",
+    "configure-workspace": "node scripts/configure-workspace.js",
+    "start-all-mcp": "node scripts/start-all-mcp.js",
+    "stop-all-mcp": "node scripts/stop-all-mcp.js",
+    "mcp-fs": "npx -y @modelcontextprotocol/server-filesystem \"${CURSOR_WORKSPACE_DIR:-$HOME/Desktop/Work}\"",
     "mcp-puppeteer": "npx -y @modelcontextprotocol/server-puppeteer",
-    "mcp-github": "npx -y @modelcontextprotocol/server-github",
+    "mcp-github": "node scripts/run-github-mcp.js",
     "mcp-webresearch": "npx -y @mzxrai/mcp-webresearch",
-    "mcp-fs": "npx -y @modelcontextprotocol/server-filesystem",
     "mcp-fetch": "npx -y mcprouter",
     "mcp-sequential": "npx -y mcprouter",
-    "mcp-init": "node ./scripts/cursor-mcp-init.js",
-    "mcp-init-force": "node ./scripts/cursor-mcp-init.js --force",
-    "mcp-optimize": "node ./scripts/optimize-mcp-config.js",
-    "mcp-optimize-force": "node ./scripts/optimize-mcp-config.js --force",
-    "setup-github": "node ./scripts/setup-github-token.js",
-    "full-automation": "node ./scripts/full-automation-setup.js",
-    "cursor-startup": "node ./scripts/cursor-startup.js",
-    "install-startup-hook": "node ./scripts/install-cursor-startup-hook.js",
-    "ai-agent": "node ./scripts/ai-automation-agent.js",
-    "test-mcp": "node ./scripts/test-all-mcp-tools.js",
-    "demo-mcp": "node ./scripts/demo-mcp-capabilities.js"
-  },
-  "bin": {
-    "cursor-mcp": "./scripts/cursor-mcp-init.js",
-    "cursor-mcp-optimize": "./scripts/optimize-mcp-config.js",
-    "cursor-github-setup": "./scripts/setup-github-token.js",
-    "cursor-full-automation": "./scripts/full-automation-setup.js",
-    "cursor-startup": "./scripts/cursor-startup.js",
-    "cursor-ai-agent": "./scripts/ai-automation-agent.js",
-    "cursor-startup-install": "./scripts/install-cursor-startup-hook.js",
-    "test-mcp": "./scripts/test-all-mcp-tools.js"
+    "setup": "node setup.js",
+    "help": "node help.js",
+    "sanitize": "node scripts/sanitize-repo.js"
   },
   "dependencies": {
-    "puppeteer": "^21.3.8"
-  },
-  "author": "",
-  "license": "MIT",
-  "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.8.0",
-    "@modelcontextprotocol/server-filesystem": "^0.6.0",
+    "@modelcontextprotocol/server-filesystem": "^0.6.2",
     "@modelcontextprotocol/server-github": "^0.6.0",
     "@modelcontextprotocol/server-puppeteer": "^0.6.2",
     "@mzxrai/mcp-webresearch": "^0.1.0",
-    "mcprouter": "^0.1.0"
+    "mcprouter": "^0.1.0",
+    "puppeteer": "^21.0.0"
   }
 }

@@ -1,273 +1,266 @@
-# Cursor Automation - Full AI Integration Toolkit
+# Cursor Automation with MCP Agents
 
-A comprehensive toolkit for maximizing AI automation capabilities in Cursor editor using Model Context Protocol (MCP) tools.
+This repository provides tools for automating Cursor IDE with Model Context Protocol (MCP) agents, enabling powerful AI-assisted coding workflows.
 
-## Features
+## What This Does
 
-- **Optimized MCP Configuration**: Enhanced settings for maximum automation capability
-- **Filesystem MCP**: Access files and directories in your workspace
-- **Puppeteer MCP**: Advanced browser automation and UI analysis
-- **GitHub MCP**: Seamless GitHub repository integration
-- **WebResearch MCP**: Powerful web search and content retrieval
-- **Fetch MCP**: Enhanced API request capabilities
-- **Sequential Thinking MCP**: Process complex, multi-step tasks
+Cursor Automation connects your Cursor AI assistant with your local system and external services through Model Context Protocol (MCP) agents. This enables Claude and other AI models to:
 
-## Quick Start - Automatic Mode
+- Access your local files and project code
+- Browse the web and search for information
+- Interact with GitHub repositories
+- Execute complex reasoning tasks
+- Make network requests
+- Automate browser interactions
 
-```bash
-# Install dependencies
-npm install
+Instead of copying and pasting code snippets, this toolset allows AI in Cursor to directly interact with your development environment.
 
-# Set up the fully automated environment (one command setup)
-npm run full-automation
+## Prerequisites
 
-# Install Cursor startup hook (runs automatically when Cursor starts)
-npm run install-startup-hook
-```
+Before installing, ensure you have the following:
 
-With this setup, the AI automation environment will start automatically whenever you launch Cursor. It will:
+- [Node.js](https://nodejs.org/) (v14 or later)
+- [npm](https://www.npmjs.com/get-npm) (v6 or later)
+- [Cursor IDE](https://cursor.sh/)
+- [Git](https://git-scm.com/downloads)
 
-1. Detect GitHub repositories and current branches
-2. Start all necessary MCP servers
-3. Configure GitHub integration with existing tokens
-4. Enable full AI automation capabilities
-
-## Using AI Automation
-
-To leverage AI automation for code changes:
-
-1. Make changes using Claude in Cursor
-2. Run the AI agent to commit and push changes:
+For macOS users, the easiest way to install these is via Homebrew:
 
 ```bash
-npm run ai-agent
-```
+# Install Homebrew if not already installed
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-The AI agent will:
-- Detect Git repositories and branches
-- Take screenshots of UI changes if requested
-- Commit changes with AI-generated or custom commit messages
-- Push to the current branch
+# Install Node.js and npm
+brew install node
+
+# Install Git if not already installed
+brew install git
+```
 
 ## Installation
 
-Clone this repository and install dependencies:
+1. Clone this repository: `git clone https://github.com/yourusername/cursor-automation.git`
+2. Navigate to the project directory: `cd cursor-automation`
+3. Run the setup script: `npm run setup`
 
-```bash
-git clone https://github.com/Blackhawk-Intelligence-LLC/cursor-automation.git
-cd cursor-automation
-npm install
-```
+The setup script will:
 
-## Optimized MCP Configuration
+- Install all dependencies
+- Guide you through configuring your workspace directory
+- Help you set up a GitHub Personal Access Token
+- Initialize the MCP configuration
 
-For maximum AI automation capabilities, use the optimized configuration:
+Alternatively, you can follow these manual steps:
 
-```bash
-npm run mcp-optimize
-```
+1. Install dependencies: `npm install`
+2. Configure your workspace directory: `npm run configure-workspace`
+3. Set up GitHub Personal Access Token: `npm run setup-github`
+4. Initialize MCP configuration: `npm run mcp-init`
 
-This will:
-1. Create an optimized MCP configuration in `~/.cursor/mcp.json`
-2. Configure all MCP servers with enhanced settings
-3. Set up workspace paths automatically
+### macOS Case Sensitivity Note
 
-To force restart all servers with the optimized configuration:
+macOS has a case-insensitive but case-preserving filesystem. This means that while `/users/username/desktop/work` and `/Users/username/Desktop/Work` refer to the same directory, the MCP server may have issues if the case doesn't match exactly what's on disk.
 
-```bash
-npm run mcp-optimize-force
-```
+For best results, always use the exact case of your directories. Our configuration script attempts to detect both capitalized and lowercase variants of common workspace directories.
 
 ## Usage
 
-### Initialize MCP Servers
+### Starting MCP Servers
 
-To initialize all MCP servers for use with Cursor:
+The most reliable way to initialize all MCP servers is:
 
 ```bash
 npm run mcp-init
-```
-
-This will:
-
-1. Update the MCP configuration in `~/.cursor/mcp.json`
-2. Start all MCP servers in the background
-3. Make the servers available to Cursor
-
-If you want to force restart all servers:
-
-```bash
+# Or with force restart option:
 npm run mcp-init-force
 ```
 
-### Starting Individual MCP Servers
-
-You can start each MCP server individually:
+Alternatively, you can use our custom script to start all servers with detailed logging:
 
 ```bash
-npm run mcp-fs             # Filesystem operations
-npm run mcp-puppeteer      # Browser automation
-npm run mcp-github         # GitHub operations
-npm run mcp-webresearch    # Web search
-npm run mcp-fetch          # API requests
-npm run mcp-sequential     # Sequential thinking
+npm run start-all-mcp
 ```
 
-### Testing MCP Servers
+### Testing MCP Functionality
 
-To verify all MCP servers are running correctly:
+After starting the servers, test if all MCP tools are working correctly:
 
 ```bash
 npm run test-mcp
 ```
 
-### Demo Capabilities
+### Stopping MCP Servers
 
-To see a demonstration of MCP capabilities:
-
-```bash
-npm run demo-mcp
-```
-
-## Automatic Startup Integration
-
-With the automatic startup feature, Cursor will initialize the full AI automation environment every time it launches:
-
-1. **MCP Servers Auto-Start**: All MCP servers start automatically
-2. **GitHub Token Detection**: Existing tokens are detected and used
-3. **Repository Awareness**: Current Git repository and branch are identified
-4. **Prompt for Missing Tokens**: If GitHub token is missing, you'll be prompted
-
-This eliminates the need to manually start servers or configure tools before using AI automation.
-
-### Setting Up Automatic Startup
+When you're done, stop all running MCP servers:
 
 ```bash
-# Install the Cursor startup hook
-npm run install-startup-hook
+npm run stop-all-mcp
 ```
 
-To verify it's working:
+## Available MCP Servers
+
+| Server              | Description                            | Configuration                         |
+| ------------------- | -------------------------------------- | ------------------------------------- |
+| Filesystem          | Provides AI access to your local files | Configure workspace directory path    |
+| Puppeteer           | Enables browser automation             | Uses headless Chrome                  |
+| GitHub              | Integrates with GitHub repositories    | Requires GitHub Personal Access Token |
+| WebResearch         | Provides web search capabilities       | No additional configuration needed    |
+| Fetch               | Enables making network requests        | No additional configuration needed    |
+| Sequential Thinking | Enables complex multi-step reasoning   | No additional configuration needed    |
+
+## In-Depth Configuration
+
+### Workspace Directory Configuration
+
+The Filesystem MCP server needs to know which directories to access. You can configure this using our interactive script:
 
 ```bash
-npm run cursor-startup
+npm run configure-workspace
 ```
 
-## AI Automation Agent
+This script will:
 
-The AI automation agent handles Git operations for AI-generated changes:
+1. Look for common workspace directories on your system
+2. Let you select from existing directories or specify a custom path
+3. Update your shell profile with the CURSOR_WORKSPACE_DIR environment variable
+4. Update package.json and other configuration files automatically
+
+You can also manually configure this in several ways:
+
+1. **Environment Variable**:
+
+   ```bash
+   export CURSOR_WORKSPACE_DIR="/path/to/your/workspace"
+   ```
+
+2. **Update Package.json**:
+   Edit the `mcp-fs` script in `package.json`:
+
+   ```json
+   "mcp-fs": "npx -y @modelcontextprotocol/server-filesystem /your/custom/path"
+   ```
+
+3. **Edit start-all-mcp.js**:
+   Modify the `workspaceDir` variable in `scripts/start-all-mcp.js`.
+
+#### macOS Case Sensitivity Note
+
+macOS has a case-insensitive but case-preserving filesystem. This means that while `/users/username/desktop/work` and `/Users/username/Desktop/Work` refer to the same directory, the MCP server may have issues if the case doesn't match exactly what's on disk.
+
+For best results, always use the exact case of your directories. Our configuration script attempts to detect both capitalized and lowercase variants of common workspace directories.
+
+### GitHub Token Configuration
+
+The GitHub token must have appropriate permissions to interact with repositories. When running `npm run setup-github`, the token is:
+
+1. Saved to your shell profile (~/.zshrc, ~/.bashrc, or ~/.profile)
+2. Added to the MCP configuration at ~/.cursor/mcp.json
+3. Saved to a local .env file for compatibility
+
+If you need to update your token later, simply run:
 
 ```bash
-npm run ai-agent
+npm run setup-github
 ```
 
-Features:
+### MCP Configuration File
 
-- **UI Analysis**: Takes screenshots of UI changes for visual review
-- **Intelligent Commits**: Suggests meaningful commit messages
-- **Branch Awareness**: Always commits to the current branch
-- **GitHub Integration**: Pushes changes directly to GitHub
+The MCP configuration is stored in `~/.cursor/mcp.json`. This file is automatically configured by the setup scripts, but you can manually edit it if needed.
 
-When you make AI-driven changes to your codebase, the agent streamlines the process of committing and pushing those changes.
+## Monitoring and Troubleshooting
 
-## Available MCP Tools for Full Automation
+### Logs
 
-### Filesystem MCP
+MCP server logs are stored in the `mcp-logs` directory:
 
-Access files and directories in your workspace. Enhanced for:
+```bash
+tail -f mcp-logs/Filesystem-out.log  # Monitor filesystem server output
+tail -f mcp-logs/GitHub-err.log      # Check GitHub server errors
+```
 
-- Reading and writing files with high performance
-- Recursive directory operations
-- Advanced file metadata handling
-- Efficient path manipulation
+### Verifying Running Servers
 
-### Puppeteer MCP
+If the test script doesn't detect running servers:
 
-Browser automation and UI analysis. Optimized for:
+1. Check process status: `ps aux | grep server`
+2. Examine log files in `mcp-logs` directory
+3. Restart servers with: `npm run mcp-init-force`
 
-- Headless browsing with maximum performance
-- Automated testing and form submission
-- High-quality screenshot generation
-- JavaScript evaluation in browser context
-- Advanced web page interaction
+### Common Issues
 
-### GitHub MCP
+#### GITHUB_PERSONAL_ACCESS_TOKEN Not Found
 
-GitHub repository integration. Improved for:
+If you see `GITHUB_PERSONAL_ACCESS_TOKEN environment variable is not set`:
 
-- Repository search and management
-- PR and issue workflow automation
-- Code search and analysis
-- Commit management
-- Seamless repository operations
+1. Run `npm run setup-github` to set up the token
+2. Restart your terminal or run `source ~/.zshrc` (or equivalent)
 
-### WebResearch MCP
+#### Wrong Workspace Path
 
-Web search and content retrieval. Enhanced for:
+If AI can't access your files:
 
-- Intelligent web searching
-- Content extraction and analysis
-- Multi-page navigation
-- Screenshot capabilities
-- Research synthesis
+1. Run `npm run configure-workspace` to reconfigure your workspace
+2. Check that the path exists and is accessible
+3. Restart the Filesystem MCP server
 
-### Fetch MCP
+#### Directory Capitalization Issues
 
-Enhanced API request capabilities. Optimized for:
+If you see messages like "Allowed directories: [ '/users/username/desktop/work' ]" but your actual directory is "/Users/username/Desktop/Work":
 
-- RESTful API interaction
-- GraphQL query support
-- Response processing
-- Authentication handling
-- Rate-limit management
+1. Make sure to use the correct capitalization in all configurations
+2. Run `npm run configure-workspace` and select the correctly capitalized directory
+3. Verify the capitalization in `~/.cursor/mcp.json`
 
-### Sequential Thinking MCP
+## Technical Details
 
-Process complex, multi-step tasks. Enhanced for:
+### How It Works
 
-- Breaking down complex problems into manageable steps
-- Chain-of-thought reasoning with enhanced context
-- Multi-stage workflow automation
-- Decision tree navigation
-- Recursive problem-solving
+This toolset configures and manages Model Context Protocol (MCP) servers, which allow AI models to access various capabilities:
 
-## Full Automation Configuration
+1. **MCP Servers**: Each server provides a specific capability (filesystem, web, GitHub, etc.)
+2. **Configuration**: Servers are configured via the ~/.cursor/mcp.json file
+3. **Environment**: Servers use environment variables for authentication and settings
+4. **Scripts**: Helper scripts manage server lifecycle and configuration
 
-The optimized MCP configuration uses:
+### Security Considerations
 
-- Expanded workspace paths for comprehensive file access
-- Enhanced Puppeteer settings with increased timeouts
-- GitHub token integration for seamless authentication
-- Improved performance settings for all MCP servers
+- The filesystem server only provides access to the configured workspace directory
+- GitHub tokens should be created with the minimum required permissions
+- Environment variables are used to avoid storing credentials in the repository
+- All network access can be monitored through the logs
 
-## Troubleshooting
+## Available Scripts
 
-If MCP servers aren't running correctly:
-
-1. Check server status:
-
-   ```bash
-   ps aux | grep -E 'server-filesystem|server-puppeteer|server-github|mcp-webresearch|mcprouter'
-   ```
-
-2. Force optimize and restart all servers:
-
-   ```bash
-   npm run mcp-optimize-force
-   npm run mcp-init-force
-   ```
-
-3. Start specific servers manually:
-   ```bash
-   npx -y @modelcontextprotocol/server-filesystem
-   ```
-
-4. Check logs for specific errors:
-   ```bash
-   # For filesystem MCP server
-   tail -f ~/.cursor/logs/filesystem-mcp.log
-   ```
+- `npm run mcp-init` - Initialize MCP configuration
+- `npm run mcp-init-force` - Reinitialize MCP configuration (force restart)
+- `npm run test-mcp` - Test all MCP tools
+- `npm run demo-mcp` - Demonstrate MCP capabilities
+- `npm run start-all-mcp` - Start all MCP servers with enhanced logging
+- `npm run stop-all-mcp` - Stop all MCP servers and backup logs
+- `npm run setup-github` - Configure GitHub token globally
+- `npm run configure-workspace` - Interactive workspace directory configuration
+- `npm run mcp-fs` - Start just the filesystem server
+- `npm run mcp-puppeteer` - Start just the Puppeteer server
+- `npm run mcp-github` - Start just the GitHub server
+- `npm run mcp-webresearch` - Start just the web research server
+- `npm run mcp-fetch` - Start just the fetch server
+- `npm run mcp-sequential` - Start just the sequential thinking server
 
 ## License
 
 MIT
+
+## Contributing
+
+Contributions are welcome! Please submit issues and pull requests via GitHub.
+
+## Privacy Notice
+
+When using this tool and sharing code or logs:
+
+1. The `.gitignore` file is configured to prevent committing sensitive files like `.env` that may contain tokens
+2. All scripts use environment variables rather than hardcoded credentials
+3. When reporting issues, please sanitize logs to remove any personal information
+4. The setup scripts are designed to use your home directory and not expose absolute paths in committed code
+
+If you fork or clone this repository, it's recommended to run `git clean -fdx` before committing to ensure no personal data is included accidentally.

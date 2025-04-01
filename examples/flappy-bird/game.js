@@ -15,20 +15,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let gameStarted = false;
     let gameOver = false;
     let score = 0;
-    let gravity = 0.5;
+    let gravity = 0.25; // Reduced gravity for smoother falling
     let birdY = 300;
     let birdVelocity = 0;
     let birdPosition = 60;
     let pipes = [];
     let gameLoop;
     let pipeGenerationInterval;
-    let isFullscreen = false;
+    let isFullscreen = true; // Default to fullscreen
 
     // Game constants
-    const FLAP_VELOCITY = -8;
+    const FLAP_VELOCITY = -6; // Reduced flap velocity for smoother movement
     const PIPE_SPEED = 2;
-    const PIPE_SPAWN_INTERVAL = 2000; // ms
-    const GAP_SIZE = 150;
+    const PIPE_SPAWN_INTERVAL = 2500; // Increased spawn interval for better gameplay
+    const GAP_SIZE = 170; // Increased gap size
     let CONTAINER_HEIGHT = gameContainer.clientHeight;
     let CONTAINER_WIDTH = gameContainer.clientWidth;
     const BIRD_HEIGHT = 30;
@@ -57,6 +57,38 @@ document.addEventListener('DOMContentLoaded', () => {
         // Show start screen
         startScreen.style.display = 'flex';
         gameOverScreen.style.display = 'none';
+
+        // Start in fullscreen by default
+        if (!isFullscreen) {
+            toggleFullscreen();
+        }
+        
+        // Create bird SVG
+        const birdSVG = `
+            <svg width="40" height="30" viewBox="0 0 40 30">
+                <g transform="translate(0 -5)">
+                    <path d="M35,20c0,8.284-6.716,15-15,15S5,28.284,5,20S11.716,5,20,5S35,11.716,35,20" fill="#FFD700"/>
+                    <circle cx="25" cy="15" r="2" fill="#000"/>
+                    <path d="M30,18c-2,2-4,2-6,1" stroke="#000" stroke-width="1" fill="none"/>
+                    <path d="M38,20l-8-3" fill="#FF6B6B"/>
+                    <path d="M10,15c0,0,4-8,10-8" stroke="#FFA500" stroke-width="2" fill="none"/>
+                </g>
+            </svg>`;
+        bird.innerHTML = birdSVG;
+        
+        // Add wing animation
+        const wingAnimation = document.createElement('style');
+        wingAnimation.textContent = `
+            @keyframes flapWings {
+                0% { transform: translateY(0); }
+                50% { transform: translateY(-2px); }
+                100% { transform: translateY(0); }
+            }
+            #bird path:last-child {
+                animation: flapWings 0.3s infinite;
+            }
+        `;
+        document.head.appendChild(wingAnimation);
     }
 
     // Update container dimensions
@@ -210,15 +242,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         birdVelocity = FLAP_VELOCITY;
+        
+        // Add flap effect
+        bird.classList.add('flap');
+        setTimeout(() => bird.classList.remove('flap'), 100);
+        
+        // Play flap sound
+        const flapSound = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAAABmYWN0BAAAAAAAAABkYXRhAAAAAA==');
+        flapSound.volume = 0.2;
+        flapSound.play().catch(() => {}); // Ignore autoplay restrictions
     }
 
     // Update bird position based on birdY
     function updateBirdPosition() {
         bird.style.top = `${birdY}px`;
         
-        // Add rotation based on velocity
-        const rotation = birdVelocity * 2;
+        // Smoother rotation based on velocity
+        const rotation = Math.max(-30, Math.min(30, birdVelocity * 3));
         bird.style.transform = `rotate(${rotation}deg)`;
+        
+        // Add trail effect
+        if (gameStarted && !gameOver) {
+            const trail = document.createElement('div');
+            trail.className = 'bird-trail';
+            trail.style.left = `${birdPosition}px`;
+            trail.style.top = `${birdY + 15}px`;
+            gameContainer.appendChild(trail);
+            
+            // Remove trail after animation
+            setTimeout(() => trail.remove(), 500);
+        }
     }
 
     // End the game

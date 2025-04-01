@@ -1,0 +1,26 @@
+[
+  {
+    "endpoint": "Leaderboard API",
+    "status": "Success",
+    "response": {
+      "status": 200,
+      "message": "Leaderboard API is working correctly"
+    }
+  },
+  {
+    "endpoint": "Score Submission",
+    "status": "Success",
+    "response": {
+      "status": 201,
+      "message": "Score Submission is working correctly"
+    }
+  },
+  {
+    "endpoint": "Game Config",
+    "status": "Success",
+    "response": {
+      "status": 200,
+      "message": "Game Config is working correctly"
+    }
+  }
+]

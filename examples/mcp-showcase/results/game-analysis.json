@@ -1,0 +1,31 @@
+{
+  "gameLoop": {
+    "sequence": [
+      "Initialize game state",
+      "Handle user input",
+      "Update bird position",
+      "Update pipe positions",
+      "Check collisions",
+      "Update score",
+      "Render frame"
+    ],
+    "optimizations": [
+      "Implement frame rate independent movement",
+      "Use object pooling for pipes",
+      "Optimize collision checks"
+    ]
+  },
+  "userInteraction": {
+    "sequence": [
+      "Detect input event",
+      "Apply impulse to bird",
+      "Update bird rotation",
+      "Play sound effect"
+    ],
+    "improvements": [
+      "Add touch/click feedback",
+      "Smooth out bird rotation",
+      "Implement variable jump height"
+    ]
+  }
+}

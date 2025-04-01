@@ -2,6 +2,18 @@
 
 This repository provides tools for automating Cursor IDE with Model Context Protocol (MCP) agents, enabling powerful AI-assisted coding workflows.
 
+## 🎮 MCP Agents Showcase
+
+Check out our [MCP Agents Showcase](examples/mcp-showcase/README.md) to see how different MCP agents work together to analyze, improve, and generate code. The showcase uses a Flappy Bird game implementation to demonstrate:
+
+- Code analysis and optimization
+- Automated testing and validation
+- API integration and testing
+- Game logic flow analysis
+- Research-driven improvements
+
+Each agent's capabilities and results are documented with real examples from the test runs.
+
 ## What This Does
 
 Cursor Automation connects your Cursor AI assistant with your local system and external services through Model Context Protocol (MCP) agents. This enables Claude and other AI models to:

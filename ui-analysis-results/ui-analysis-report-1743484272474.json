@@ -1,0 +1,12 @@
+{
+  "url": "https://example.com",
+  "timestamp": "2025-04-01T05:11:15.862Z",
+  "accessibilityIssues": [],
+  "htmlSize": 1248,
+  "screenshot": "/Users/carlson/Desktop/Work/cursor-utils/ui-analysis-results/screenshot-1743484272474.png",
+  "responsiveScreenshots": [
+    "/Users/carlson/Desktop/Work/cursor-utils/ui-analysis-results/screenshot-1743484272474-mobile.png",
+    "/Users/carlson/Desktop/Work/cursor-utils/ui-analysis-results/screenshot-1743484272474-tablet.png",
+    "/Users/carlson/Desktop/Work/cursor-utils/ui-analysis-results/screenshot-1743484272474-desktop.png"
+  ]
+}

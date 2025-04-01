@@ -1,0 +1,7 @@
+Sequential Thinking MCP server test - 2025-04-01T06:24:50.386Z
+    
+The Sequential Thinking MCP server can be used for:
+- Breaking down complex problems into steps
+- Executing multi-stage reasoning tasks
+- Performing step-by-step analysis
+- Chaining together multiple operations

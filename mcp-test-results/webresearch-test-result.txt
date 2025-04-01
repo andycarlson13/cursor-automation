@@ -1,0 +1,7 @@
+WebResearch MCP server test - 2025-04-01T06:24:50.208Z
+    
+The WebResearch MCP server can be used for:
+- Searching the web for information
+- Visiting web pages to extract content
+- Taking screenshots of websites
+- Analyzing web page content

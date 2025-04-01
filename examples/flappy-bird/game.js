@@ -15,36 +15,44 @@ document.addEventListener('DOMContentLoaded', () => {
     let gameStarted = false;
     let gameOver = false;
     let score = 0;
-    let gravity = 0.25; // Reduced gravity for smoother falling
+    let gravity = 0.08; // Much slower falling
     let birdY = 300;
     let birdVelocity = 0;
     let birdPosition = 60;
     let pipes = [];
     let gameLoop;
     let pipeGenerationInterval;
-    let isFullscreen = true; // Default to fullscreen
+    let isFullscreen = true;
+    let hasJumped = false; // Track if player has jumped
 
     // Game constants
-    const FLAP_VELOCITY = -6; // Reduced flap velocity for smoother movement
-    const PIPE_SPEED = 2;
-    const PIPE_SPAWN_INTERVAL = 2500; // Increased spawn interval for better gameplay
-    const GAP_SIZE = 170; // Increased gap size
+    const FLAP_VELOCITY = -3.5; // Gentler upward movement
+    const PIPE_SPEED = 1.2; // Even slower pipes
+    const PIPE_SPAWN_INTERVAL = 3500; // More time between pipes
+    const GAP_SIZE = 250; // Much larger gap
     let CONTAINER_HEIGHT = gameContainer.clientHeight;
     let CONTAINER_WIDTH = gameContainer.clientWidth;
     const BIRD_HEIGHT = 30;
     const BIRD_WIDTH = 40;
+    const GROUND_HEIGHT = 20;
 
     // Initialize the game
     function initGame() {
-        birdY = 300;
+        // Force fullscreen on start
+        if (!document.fullscreenElement) {
+            toggleFullscreen();
+        }
+        
+        birdY = CONTAINER_HEIGHT * 0.6; // Start bird lower
         birdVelocity = 0;
         score = 0;
+        hasJumped = false;
         scoreDisplay.textContent = score;
         pipes = [];
         gameStarted = false;
         gameOver = false;
 
-        // Update container dimensions (in case of fullscreen change)
+        // Update container dimensions
         updateContainerDimensions();
 
         // Clear existing pipes
@@ -54,41 +62,28 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset bird position
         updateBirdPosition();
 
-        // Show start screen
+        // Show start screen with instructions
         startScreen.style.display = 'flex';
         gameOverScreen.style.display = 'none';
-
-        // Start in fullscreen by default
-        if (!isFullscreen) {
-            toggleFullscreen();
+        
+        // Update instructions based on player experience
+        const instructionsElement = document.querySelector('#start-screen p');
+        if (!hasJumped) {
+            instructionsElement.innerHTML = `
+                <div class="instructions">
+                    <p>🎮 How to Play:</p>
+                    <ul>
+                        <li>Click or press Space to jump up</li>
+                        <li>Avoid hitting the ground</li>
+                        <li>Pass through the gaps in the pipes</li>
+                        <li>The bird will fall if you don't click</li>
+                    </ul>
+                    <p class="tip">Tip: Try to keep the bird in the middle of the screen</p>
+                </div>
+            `;
+        } else {
+            instructionsElement.textContent = 'Click or press Space to jump up';
         }
-        
-        // Create bird SVG
-        const birdSVG = `
-            <svg width="40" height="30" viewBox="0 0 40 30">
-                <g transform="translate(0 -5)">
-                    <path d="M35,20c0,8.284-6.716,15-15,15S5,28.284,5,20S11.716,5,20,5S35,11.716,35,20" fill="#FFD700"/>
-                    <circle cx="25" cy="15" r="2" fill="#000"/>
-                    <path d="M30,18c-2,2-4,2-6,1" stroke="#000" stroke-width="1" fill="none"/>
-                    <path d="M38,20l-8-3" fill="#FF6B6B"/>
-                    <path d="M10,15c0,0,4-8,10-8" stroke="#FFA500" stroke-width="2" fill="none"/>
-                </g>
-            </svg>`;
-        bird.innerHTML = birdSVG;
-        
-        // Add wing animation
-        const wingAnimation = document.createElement('style');
-        wingAnimation.textContent = `
-            @keyframes flapWings {
-                0% { transform: translateY(0); }
-                50% { transform: translateY(-2px); }
-                100% { transform: translateY(0); }
-            }
-            #bird path:last-child {
-                animation: flapWings 0.3s infinite;
-            }
-        `;
-        document.head.appendChild(wingAnimation);
     }
 
     // Update container dimensions
@@ -125,8 +120,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateGame() {
         if (gameOver) return;
 
-        // Apply gravity to bird
-        birdVelocity += gravity;
+        // Apply gravity to bird (with terminal velocity)
+        birdVelocity = Math.min(birdVelocity + gravity, 4); // Limit falling speed
         birdY += birdVelocity;
 
         // Check if bird hits the ground or ceiling
@@ -134,7 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
             birdY = 0;
             birdVelocity = 0;
         }
-        if (birdY > CONTAINER_HEIGHT - BIRD_HEIGHT - 20) { // 20px for ground
+        if (birdY > CONTAINER_HEIGHT - BIRD_HEIGHT - GROUND_HEIGHT) {
+            birdY = CONTAINER_HEIGHT - BIRD_HEIGHT - GROUND_HEIGHT;
             gameEnd();
             return;
         }
@@ -180,8 +176,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function generatePipe() {
         if (gameOver) return;
 
-        // Random gap position
-        const gapTop = Math.floor(Math.random() * (CONTAINER_HEIGHT - GAP_SIZE - 140)) + 50;
+        // More forgiving gap position
+        const minGapTop = 150; // Higher minimum
+        const maxGapTop = CONTAINER_HEIGHT - GAP_SIZE - 150; // Lower maximum
+        const gapTop = Math.floor(Math.random() * (maxGapTop - minGapTop)) + minGapTop;
         
         // Create top pipe
         const topPipe = document.createElement('div');
@@ -193,9 +191,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Create bottom pipe
         const bottomPipe = document.createElement('div');
         bottomPipe.className = 'pipe pipe-bottom';
-        bottomPipe.style.height = `${CONTAINER_HEIGHT - gapTop - GAP_SIZE - 20}px`; // 20px for ground
+        bottomPipe.style.height = `${CONTAINER_HEIGHT - gapTop - GAP_SIZE - GROUND_HEIGHT}px`;
         bottomPipe.style.left = `${CONTAINER_WIDTH}px`;
-        bottomPipe.style.bottom = '20px'; // Account for ground
+        bottomPipe.style.bottom = `${GROUND_HEIGHT}px`;
         
         // Add pipes to the container
         gameContainer.appendChild(topPipe);
@@ -220,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const pipeLeft = pipe.x;
         const pipeRight = pipe.x + 60;
         const topPipeBottom = parseInt(pipe.topElement.style.height);
-        const bottomPipeTop = CONTAINER_HEIGHT - parseInt(pipe.bottomElement.style.height) - 20; // 20px for ground
+        const bottomPipeTop = CONTAINER_HEIGHT - parseInt(pipe.bottomElement.style.height) - GROUND_HEIGHT;
         
         // Check horizontal collision
         if (birdRight > pipeLeft && birdPosition < pipeRight) {
@@ -241,6 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
             startGame();
         }
         
+        hasJumped = true;
         birdVelocity = FLAP_VELOCITY;
         
         // Add flap effect
@@ -257,8 +256,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateBirdPosition() {
         bird.style.top = `${birdY}px`;
         
-        // Smoother rotation based on velocity
-        const rotation = Math.max(-30, Math.min(30, birdVelocity * 3));
+        // Smoother rotation with less extreme angles
+        const rotation = Math.max(-20, Math.min(20, birdVelocity * 2));
         bird.style.transform = `rotate(${rotation}deg)`;
         
         // Add trail effect
@@ -287,35 +286,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Toggle fullscreen
     function toggleFullscreen() {
-        if (!isFullscreen) {
-            // Go fullscreen
+        if (!document.fullscreenElement) {
             if (gameContainer.requestFullscreen) {
                 gameContainer.requestFullscreen();
-            } else if (gameContainer.mozRequestFullScreen) { // Firefox
+            } else if (gameContainer.mozRequestFullScreen) {
                 gameContainer.mozRequestFullScreen();
-            } else if (gameContainer.webkitRequestFullscreen) { // Chrome, Safari and Opera
+            } else if (gameContainer.webkitRequestFullscreen) {
                 gameContainer.webkitRequestFullscreen();
-            } else if (gameContainer.msRequestFullscreen) { // IE/Edge
+            } else if (gameContainer.msRequestFullscreen) {
                 gameContainer.msRequestFullscreen();
             }
             document.body.classList.add('fullscreen');
             fullscreenBtn.textContent = 'Exit Fullscreen';
+            isFullscreen = true;
         } else {
-            // Exit fullscreen
             if (document.exitFullscreen) {
                 document.exitFullscreen();
-            } else if (document.mozCancelFullScreen) { // Firefox
+            } else if (document.mozCancelFullScreen) {
                 document.mozCancelFullScreen();
-            } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
+            } else if (document.webkitExitFullscreen) {
                 document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) { // IE/Edge
+            } else if (document.msExitFullscreen) {
                 document.msExitFullscreen();
             }
             document.body.classList.remove('fullscreen');
             fullscreenBtn.textContent = 'Fullscreen';
+            isFullscreen = false;
         }
-        
-        isFullscreen = !isFullscreen;
         
         // Update container dimensions after fullscreen toggle
         setTimeout(updateContainerDimensions, 100);
